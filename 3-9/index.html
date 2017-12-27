@@ -1,0 +1,53 @@
+<html>
+  <head>
+    <meta charset="utf-8"/>
+  </head>
+  <body>
+    <svg></svg>
+  </body>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="https://d3js.org/d3-scale.v1.min.js"></script>
+  <script>
+  var margin = {top: 20, right: 20, bottom: 50, left: 70};
+  var width = 320 - margin.left - margin.right
+  var height = 600 - margin.top - margin.bottom
+
+
+  d3.csv("data.csv", function(err, data) {
+    var chart = d3.select("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+    var y = d3.scaleLinear()
+      .domain([0, 200])
+      .range([height, 0]);
+
+    var x = d3.scaleBand()
+	    .rangeRound([0,width])
+      .padding(0.1)
+      .domain(data.map(function(d){return d.id}))
+
+    var bar = chart.selectAll("g")
+     .data(data)
+     .enter().append("g")
+     .attr("transform", function(d,i) { return "translate(" + x(d.id) + ",0)"; });
+
+    bar.append("rect")
+     .attr("y", function(d){ return y(d.value)})
+     .attr("height", function(d) { return height - y(d.value)})
+     .attr("width",  x.bandwidth())
+
+    chart.append("g")
+      .attr("class", "y axis")
+      .call(d3.axisLeft(y));
+
+    chart.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+  })
+  </script>
+</html>
